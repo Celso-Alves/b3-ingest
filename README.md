@@ -1,0 +1,170 @@
+# b3-ingest
+
+A modern, idiomatic Go project for automated ingestion and querying of B3 trading data, following Clean Architecture and SOLID principles.
+
+## Project Overview
+
+**b3-ingest** is an ETL/data pipeline for ingesting, processing, and serving B3 (Brazilian Stock Exchange) trading data. It is designed for maintainability, performance, and extensibility, using:
+
+- **Clean Architecture**: Clear separation of domain, service, repository, and infrastructure layers.
+- **SOLID Principles**: Each component has a single responsibility and is easily testable and replaceable.
+- **Idiomatic Go**: Uses context, dependency injection, and best practices for concurrency and error handling.
+- **GORM ORM**: For efficient, safe, and maintainable database access (no raw SQL in business logic).
+- **Environment-driven configuration**: All settings are loaded from environment variables or `.env` files.
+- **Dockerized**: For reproducible local development and deployment.
+
+## Architecture
+
+```
+main.go
+  └── internal/
+      ├── domain/         # Domain models (pure Go, no dependencies)
+      ├── service/        # Business logic (ingestion, trading, etc.)
+      ├── infra/          # Infrastructure (DB, repositories, adapters)
+      ├── logger/         # Custom logger abstraction
+      ├── starter/        # Application startup orchestration
+      └── settings/       # Environment/config loading
+  └── pkg/routes/         # HTTP route handlers (Gin)
+  └── cmd/                # Compiled binary output
+```
+
+- **Domain and ORM models are decoupled** for testability and future DB changes.
+- **Repository pattern**: All DB access is via repository interfaces, using GORM.
+- **Service layer**: All business logic (ingestion, trading queries) is in services, not handlers or main.
+- **Graceful shutdown** and context/signal handling in all modes.
+
+## Prerequisites
+
+- Go 1.18 or newer (recommended: latest stable)
+- Docker & Docker Compose (for local DB and app)
+
+
+## Environment Setup
+
+1. **Clone the repository:**
+   ```sh
+   git clone <your-repo-url>
+   cd b3-ingest
+   ```
+2. **Configure environment variables:**
+   - Copy and edit `env-local` as needed:
+     ```sh
+     cp env-local .env
+     # Edit .env to match your local DB settings if needed
+     ```
+   - Example `.env`:
+     ```env
+     DATABASE_NAME=b3db
+     DATABASE_HOST=localhost
+     DATABASE_PORT=5432
+     DATABASE_USERNAME=postgres
+     DATABASE_PASSWORD=postgres
+     APP_NAME=b3-ingest
+     ```
+
+
+## Build & Run
+
+### Build the application
+
+```sh
+make build
+```
+- The binary will be generated in `cmd/b3-ingest`.
+
+### Run the HTTP server
+
+```sh
+make serve
+```
+- The server will start on the port defined in your environment (default: 8000).
+
+### Run the ingestion (load CSVs into the database)
+
+```sh
+make ingest
+```
+
+### Download the latest B3 trading files (last 7 workdays)
+
+```sh
+make download
+```
+- Files will be downloaded and unzipped to `bundle/b3files` (default).
+
+### Run all unit tests
+
+```sh
+make test
+```
+
+### Check code coverage
+
+```sh
+make coverage
+```
+
+
+### Run with Docker Compose (app + Postgres)
+
+```sh
+make docker-up
+```
+- Access the API at [http://localhost:8000](http://localhost:8000)
+
+## Querying the Data
+
+After running the server (`make serve` or via Docker), you can query for trading stats using HTTP:
+
+### Example: Query max price and max daily volume for a ticker
+
+```sh
+curl "http://localhost:8000/quote?ticker=WDOQ25&data_inicio=2025-07-25"
+```
+Response:
+```json
+{
+  "ticker": "WDOQ25",
+  "max_range_value": 5585.0,
+  "max_daily_volume": 4688104
+}
+```
+- `ticker` (required): The instrument code.
+- `data_inicio` (optional, YYYY-MM-DD): Start date for the query (default: 7 days ago).
+
+## Best Practices Used
+
+- **Clean Architecture**: All business logic is in services, not in handlers or main.
+- **SOLID Principles**: Each layer/component has a single responsibility and is easily testable.
+- **Idiomatic Go**: Uses context, error wrapping, dependency injection, and concurrency best practices.
+- **GORM ORM**: All DB access is via GORM, not raw SQL in business logic.
+- **Graceful shutdown**: All modes handle OS signals and shutdown cleanly.
+- **Environment-driven config**: All config is loaded from env or `.env` files, never hardcoded.
+- **Automated tests**: Unit tests for all core logic, with Arrange/Act/Assert and GivenWhenThen naming.
+- **Static analysis**: Use `golangci-lint` for code quality and unused code detection.
+
+## Troubleshooting
+
+## Configuration
+
+The application is configured via environment variables. Below is a summary of all supported variables:
+
+| Name                | Description                                 | Default Value           |
+|---------------------|---------------------------------------------|------------------------|
+| `CSV_PATH`          | Directory where CSV files are stored         | `./bundle/b3files`     |
+| `APP_DEFAULT_PORT`  | HTTP server port                            | `8000`                 |
+| `APP_NAME`          | Application name                            | `b3-ingest`            |
+| `INGESTION_CORES`   | Number of concurrent ingestion workers      | `6`                    |
+| `DATABASE_NAME`     | PostgreSQL database name                    | `b3db`                 |
+| `DATABASE_PASSWORD` | PostgreSQL user password                    | (required, no default) |
+| `DATABASE_USERNAME` | PostgreSQL username                         | (required, no default) |
+| `DATABASE_HOST`     | PostgreSQL host                             | (required, no default) |
+| `DATABASE_PORT`     | PostgreSQL port                             | `5432`                 |
+| `DATABASE_SSL`      | Use SSL for DB connection (`true`/`false`)  | `true`                 |
+
+- All variables can be set in your shell, `.env`, or via Docker Compose.
+- Required variables must be set for the application to start.
+
+---
+
+Feel free to open issues or contribute improvements!
