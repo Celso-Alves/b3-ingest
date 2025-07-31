@@ -30,10 +30,10 @@ func NewService(db *gorm.DB, dsn string, log *logger.Logger) *Service {
 }
 
 func (s *Service) IngestFromCSV(dir string) error {
-	s.Log.Info("Iniciando ingestão de CSVs...")
+	s.Log.Info("Starting CSV ingestion...")
 	pool, err := pgxpool.New(context.Background(), s.DSN)
 	if err != nil {
-		s.Log.Error("Erro ao conectar com o banco de dados: %v", err)
+		s.Log.Error("Error connecting to database: %v", err)
 		return err
 	}
 	defer pool.Close()
@@ -44,7 +44,7 @@ func (s *Service) IngestFromCSV(dir string) error {
 
 	files, err := os.ReadDir(dir)
 	if err != nil {
-		s.Log.Error("Erro ao listar arquivos no diretório %s: %v", dir, err)
+		s.Log.Error("Error listing files in directory %s: %v", dir, err)
 		return err
 	}
 
@@ -67,7 +67,7 @@ func (s *Service) IngestFromCSV(dir string) error {
 				if firstErr == nil {
 					firstErr = err
 				}
-				s.Log.Error("erro processando arquivo %s: %v", f.Name(), err)
+				s.Log.Error("Error processing file %s: %v", f.Name(), err)
 				mu.Unlock()
 			}
 		}(f)
@@ -79,7 +79,7 @@ func (s *Service) IngestFromCSV(dir string) error {
 
 func (s *Service) prepareDatabase(pool *pgxpool.Pool) error {
 
-	s.Log.Info("Criando tabela UNLOGGED se necessário...")
+	s.Log.Info("Creating UNLOGGED table if necessary...")
 	sql := `
 		CREATE UNLOGGED TABLE IF NOT EXISTS tradings_unlogged (
 			data_negocio date,
@@ -97,7 +97,7 @@ func (s *Service) prepareDatabase(pool *pgxpool.Pool) error {
 
 func (s *Service) processFile(fileName, dir string, pool *pgxpool.Pool) error {
 	path := dir + "/" + fileName
-	s.Log.Info("Processando: %s", path)
+	s.Log.Info("Processing: %s", path)
 	file, err := os.Open(path)
 	if err != nil {
 		return err
@@ -127,12 +127,12 @@ func (s *Service) processFile(fileName, dir string, pool *pgxpool.Pool) error {
 
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
-	s.Log.Debug("Memória após %s: %.2f MB", fileName, float64(m.Alloc)/1024/1024)
+	s.Log.Debug("Memory after %s: %.2f MB", fileName, float64(m.Alloc)/1024/1024)
 	return err
 }
 
 func (s *Service) finalizeIngestion(pool *pgxpool.Pool, firstErr error) error {
-	s.Log.Info("Finalizando ingestão e executando SQLs finais...")
+	s.Log.Info("Finalizing ingestion and running final SQLs...")
 	finalSQL :=
 		`INSERT INTO tradings (data_negocio, codigo_instrumento, preco_negocio, quantidade_negociada, hora_fechamento, codigo_identificador_negocio)
 		 SELECT data_negocio, codigo_instrumento, preco_negocio, quantidade_negociada, hora_fechamento, codigo_identificador_negocio
@@ -151,10 +151,10 @@ func (s *Service) finalizeIngestion(pool *pgxpool.Pool, firstErr error) error {
 		CREATE INDEX IF NOT EXISTS idx_tradings_ticker_data ON tradings (codigo_instrumento, data_negocio);`
 
 	if _, err := pool.Exec(context.Background(), finalSQL); err != nil {
-		s.Log.Error("ao executar SQL final: %v", err)
+		s.Log.Error("Error running final SQL: %v", err)
 		return err
 	}
 
-	s.Log.Info("Ingestão finalizada.")
+	s.Log.Info("Ingestion finished.")
 	return firstErr
 }
