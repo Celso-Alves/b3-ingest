@@ -136,7 +136,7 @@ func (s *Service) finalizeIngestion(pool *pgxpool.Pool, firstErr error) error {
 	finalSQL :=
 		`INSERT INTO tradings (data_negocio, codigo_instrumento, preco_negocio, quantidade_negociada, hora_fechamento, codigo_identificador_negocio)
 		 SELECT data_negocio, codigo_instrumento, preco_negocio, quantidade_negociada, hora_fechamento, codigo_identificador_negocio
-		 FROM tradings_unlogged ON CONFLICT DO NOTHING;
+		 FROM tradings_unlogged;
 
 		drop table IF EXISTS tradings_unlogged;
 

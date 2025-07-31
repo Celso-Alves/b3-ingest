@@ -8,7 +8,7 @@ import (
 )
 
 type QuoteStats struct {
-	MaxPrice      float64
+	MaxPrice       float64
 	MaxDailyVolume int64
 }
 
@@ -25,7 +25,7 @@ func NewTradingRepository() TradingRepository {
 // GetQuoteStats returns the maximum price and the maximum daily volume for a ticker since startDate.
 func (r *tradingRepository) GetQuoteStats(ctx context.Context, db *gorm.DB, ticker string, startDate time.Time) (QuoteStats, error) {
 	var stats QuoteStats
-	// Use a CTE to get both values efficiently
+
 	query := `
 		WITH daily_volumes AS (
 			SELECT data_negocio, SUM(quantidade_negociada) AS soma

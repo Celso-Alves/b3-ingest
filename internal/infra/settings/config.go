@@ -10,9 +10,9 @@ var envs Config
 
 type DatabaseEnvironment struct {
 	DatabaseName     string `env:"DATABASE_NAME,required" envDefault:"b3db"`
-	DatabasePassword string `env:"DATABASE_PASSWORD,required"`
-	DatabaseUsername string `env:"DATABASE_USERNAME,required"`
-	DatabaseHost     string `env:"DATABASE_HOST,required"`
+	DatabasePassword string `env:"DATABASE_PASSWORD,required" envDefault:"postgres"`
+	DatabaseUsername string `env:"DATABASE_USERNAME,required" envDefault:"postgres"`
+	DatabaseHost     string `env:"DATABASE_HOST,required" envDefault:"localhost"`
 	DatabasePort     int    `env:"DATABASE_PORT" envDefault:"5432"`
 	DatabaseSSL      bool   `env:"DATABASE_SSL" envDefault:"true"`
 }
