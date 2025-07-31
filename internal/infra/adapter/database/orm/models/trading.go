@@ -16,7 +16,6 @@ type Trading struct {
 	CodigoIdentificadorNegocio int       `gorm:"column:codigo_identificador_negocio"`
 }
 
-// ToTradingORMModel converts a domain Trading model to an ORM Trading model.
 func ToTradingORMModel(domain models.Trading) Trading {
 	return Trading{
 		DataNegocio:                domain.DataNegocio,
@@ -29,7 +28,6 @@ func ToTradingORMModel(domain models.Trading) Trading {
 	}
 }
 
-// ToTradingDomainModel converts an ORM Trading model to a domain Trading model.
 func ToTradingDomainModel(orm Trading) models.Trading {
 	return models.Trading{
 		DataNegocio:                orm.DataNegocio,

@@ -3,3 +3,5 @@
 /25-07-2025_NEGOCIOAVISTA.txt
 /ALTER TABLE tradings ADD COLUMN hash_arq.sql
 /SELECT data_negocio,.sql
+/ALTER TABLE tradings ADD COLUMN hash_arq.sql
+/--truncate table public.sql

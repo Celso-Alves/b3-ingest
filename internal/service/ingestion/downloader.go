@@ -25,8 +25,8 @@ func DownloadAndUnzipLast7Workdays(ctx context.Context, destDir string, logf fun
 			return ctx.Err()
 		default:
 		}
-		url := baseURL + d.Format("2005-01-02")
-		zipPath := filepath.Join(destDir, d.Format("2004-01-02")+".zip")
+		url := baseURL + d.Format("2006-01-02")
+		zipPath := filepath.Join(destDir, d.Format("2006-01-02")+".zip")
 		logf("Downloading %s...", url)
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 		if err != nil {
@@ -66,13 +66,17 @@ func DownloadAndUnzipLast7Workdays(ctx context.Context, destDir string, logf fun
 	return nil
 }
 
+// lastNWorkdays returns the last n workdays, excluding today.
 func lastNWorkdays(n int) []time.Time {
 	var days []time.Time
 	now := time.Now()
-	for d := now; len(days) < n; d = d.AddDate(0, 0, -1) {
+	// Exclude today
+	d := now.AddDate(0, 0, -1)
+	for len(days) < n {
 		if d.Weekday() != time.Saturday && d.Weekday() != time.Sunday {
 			days = append(days, d)
 		}
+		d = d.AddDate(0, 0, -1)
 	}
 	// reverse to oldest first
 	for i, j := 0, len(days)-1; i < j; i, j = i+1, j-1 {

@@ -34,5 +34,3 @@ func TestStartGivenUnknownModeWhenCalledThenExitsWithUsage(t *testing.T) {
 	assert.NotEqual(t, 0, state.ExitCode())
 	os.Unsetenv("BE_CRASHER")
 }
-
-// Note: For startDownload, startIngestion, startServer, you would need to mock dependencies and side effects (e.g., DB, HTTP server, OS exit), which is non-trivial and often not done in pure unit tests. Integration tests are more appropriate for those. Here we only test the Start dispatcher logic.

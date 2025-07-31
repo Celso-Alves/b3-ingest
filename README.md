@@ -1,6 +1,6 @@
 # b3-ingest
 
-A modern, idiomatic Go project for automated ingestion and querying of B3 trading data, following Clean Architecture and SOLID principles.
+It's a simple Go project for automated ingestion and querying of B3 trading data
 
 ## Project Overview
 
@@ -43,10 +43,10 @@ main.go
 
 1. **Clone the repository:**
    ```sh
-   git clone <your-repo-url>
+   git clone https://github.com/Celso-Alves/b3-ingest.git
    cd b3-ingest
    ```
-2. **Configure environment variables:**
+2. **Configure environment variables(optional):**
    - Copy and edit `env-local` as needed:
      ```sh
      cp env-local .env
@@ -61,7 +61,10 @@ main.go
      DATABASE_PASSWORD=postgres
      APP_NAME=b3-ingest
      ```
-
+    - Load the envs before running:
+      ```bash
+      source setenv.sh
+      ```
 
 ## Build & Run
 
@@ -72,19 +75,6 @@ make build
 ```
 - The binary will be generated in `cmd/b3-ingest`.
 
-### Run the HTTP server
-
-```sh
-make serve
-```
-- The server will start on the port defined in your environment (default: 8000).
-
-### Run the ingestion (load CSVs into the database)
-
-```sh
-make ingest
-```
-
 ### Download the latest B3 trading files (last 7 workdays)
 
 ```sh
@@ -92,25 +82,19 @@ make download
 ```
 - Files will be downloaded and unzipped to `bundle/b3files` (default).
 
-### Run all unit tests
+### Run the ingestion (load CSVs into the database)
 
 ```sh
-make test
+make ingest
 ```
 
-### Check code coverage
+### Run the HTTP server
 
 ```sh
-make coverage
+make serve
 ```
+- The server will start on the port defined in your environment (default: 8000).
 
-
-### Run with Docker Compose (app + Postgres)
-
-```sh
-make docker-up
-```
-- Access the API at [http://localhost:8000](http://localhost:8000)
 
 ## Querying the Data
 
@@ -119,7 +103,7 @@ After running the server (`make serve` or via Docker), you can query for trading
 ### Example: Query max price and max daily volume for a ticker
 
 ```sh
-curl "http://localhost:8000/quote?ticker=WDOQ25&data_inicio=2025-07-25"
+curl "http://localhost:8000/quote?ticker=WDOQ25&data_inicio=2025-07-29"
 ```
 Response:
 ```json
@@ -132,6 +116,17 @@ Response:
 - `ticker` (required): The instrument code.
 - `data_inicio` (optional, YYYY-MM-DD): Start date for the query (default: 7 days ago).
 
+
+
+### Run with Docker Compose (app + Postgres)
+
+```sh
+make docker-up
+```
+- Access the API at [http://localhost:8000](http://localhost:8000)
+
+
+
 ## Best Practices Used
 
 - **Clean Architecture**: All business logic is in services, not in handlers or main.
@@ -141,9 +136,7 @@ Response:
 - **Graceful shutdown**: All modes handle OS signals and shutdown cleanly.
 - **Environment-driven config**: All config is loaded from env or `.env` files, never hardcoded.
 - **Automated tests**: Unit tests for all core logic, with Arrange/Act/Assert and GivenWhenThen naming.
-- **Static analysis**: Use `golangci-lint` for code quality and unused code detection.
 
-## Troubleshooting
 
 ## Configuration
 
@@ -151,7 +144,7 @@ The application is configured via environment variables. Below is a summary of a
 
 | Name                | Description                                 | Default Value           |
 |---------------------|---------------------------------------------|------------------------|
-| `CSV_PATH`          | Directory where CSV files are stored         | `./bundle/b3files`     |
+| `CSV_PATH`          | Directory where CSV files are stored        | `./bundle/b3files`     |
 | `APP_DEFAULT_PORT`  | HTTP server port                            | `8000`                 |
 | `APP_NAME`          | Application name                            | `b3-ingest`            |
 | `INGESTION_CORES`   | Number of concurrent ingestion workers      | `6`                    |
@@ -165,6 +158,3 @@ The application is configured via environment variables. Below is a summary of a
 - All variables can be set in your shell, `.env`, or via Docker Compose.
 - Required variables must be set for the application to start.
 
----
-
-Feel free to open issues or contribute improvements!
