@@ -2,9 +2,6 @@ services:
   app:
     build: .
     working_dir: /app
-    # Optionally mount bundle as a volume if you want to access CSVs from host
-    # volumes:
-    #   - ./bundle:/app/bundle
     environment:
       - GIN_MODE=release
       - POSTGRES_USER=postgres
