@@ -31,7 +31,7 @@ main.go
 - **Domain and ORM models are decoupled** for testability and future DB changes.
 - **Repository pattern**: All DB access is via repository interfaces, using GORM.
 - **Service layer**: All business logic (ingestion, trading queries) is in services, not handlers or main.
-- **Graceful shutdown** and context/signal handling in all modes.
+
 
 ## Prerequisites
 
