@@ -9,7 +9,6 @@ It's a simple Go project for automated ingestion and querying of B3 trading data
 - **Clean Architecture**: Clear separation of domain, service, repository, and infrastructure layers.
 - **SOLID Principles**: Each component has a single responsibility and is easily testable and replaceable.
 - **Idiomatic Go**: Uses context, dependency injection, and best practices for concurrency and error handling.
-- **GORM ORM**: For efficient, safe, and maintainable database access (no raw SQL in business logic).
 - **Environment-driven configuration**: All settings are loaded from environment variables or `.env` files.
 - **Dockerized**: For reproducible local development and deployment.
 
@@ -35,7 +34,7 @@ main.go
 
 ## Prerequisites
 
-- Go 1.18 or newer (recommended: latest stable)
+- Go 1.24 or newer (recommended: latest stable)
 - Docker & Docker Compose (for local DB and app)
 
 
@@ -46,7 +45,16 @@ main.go
    git clone https://github.com/Celso-Alves/b3-ingest.git
    cd b3-ingest
    ```
-2. **Configure environment variables(optional):**
+2. **Dependencies:**
+
+
+The first step to running the project will be to configure the environment, installing the necessary dependencies, this can be done through the command in your terminal:
+
+```bash
+go mod download
+```
+
+3. **Configure environment variables(optional):**
    - Copy and edit `env-local` as needed:
      ```sh
      cp env-local .env
@@ -66,7 +74,14 @@ main.go
       source setenv.sh
       ```
 
-## Build & Run
+
+### Build DB dependencies with Docker Compose (app + Postgres)
+
+```sh
+make docker-up
+```
+- You can access the API at [http://localhost:8000](http://localhost:8000)
+
 
 ### Build the application
 
@@ -116,23 +131,11 @@ Response:
 - `ticker` (required): The instrument code.
 - `data_inicio` (optional, YYYY-MM-DD): Start date for the query (default: 7 days ago).
 
-
-
-### Run with Docker Compose (app + Postgres)
-
-```sh
-make docker-up
-```
-- Access the API at [http://localhost:8000](http://localhost:8000)
-
-
-
 ## Best Practices Used
 
 - **Clean Architecture**: All business logic is in services, not in handlers or main.
 - **SOLID Principles**: Each layer/component has a single responsibility and is easily testable.
 - **Idiomatic Go**: Uses context, error wrapping, dependency injection, and concurrency best practices.
-- **GORM ORM**: All DB access is via GORM, not raw SQL in business logic.
 - **Graceful shutdown**: All modes handle OS signals and shutdown cleanly.
 - **Environment-driven config**: All config is loaded from env or `.env` files, never hardcoded.
 - **Automated tests**: Unit tests for all core logic, with Arrange/Act/Assert and GivenWhenThen naming.
@@ -149,11 +152,11 @@ The application is configured via environment variables. Below is a summary of a
 | `APP_NAME`          | Application name                            | `b3-ingest`            |
 | `INGESTION_CORES`   | Number of concurrent ingestion workers      | `6`                    |
 | `DATABASE_NAME`     | PostgreSQL database name                    | `b3db`                 |
-| `DATABASE_PASSWORD` | PostgreSQL user password                    | (required, no default) |
-| `DATABASE_USERNAME` | PostgreSQL username                         | (required, no default) |
-| `DATABASE_HOST`     | PostgreSQL host                             | (required, no default) |
+| `DATABASE_PASSWORD` | PostgreSQL user password                    | `postgres`             |
+| `DATABASE_USERNAME` | PostgreSQL username                         | `postgres`             |
+| `DATABASE_HOST`     | PostgreSQL host                             | `localhost`            |
 | `DATABASE_PORT`     | PostgreSQL port                             | `5432`                 |
-| `DATABASE_SSL`      | Use SSL for DB connection (`true`/`false`)  | `true`                 |
+| `DATABASE_SSL`      | Use SSL for DB connection (`true`/`false`)  | `false`                 |
 
 - All variables can be set in your shell, `.env`, or via Docker Compose.
 - Required variables must be set for the application to start.

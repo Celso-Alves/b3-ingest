@@ -22,7 +22,6 @@ func NewTradingRepository() TradingRepository {
 	return &tradingRepository{}
 }
 
-// GetQuoteStats returns the maximum price and the maximum daily volume for a ticker since startDate.
 func (r *tradingRepository) GetQuoteStats(ctx context.Context, db *gorm.DB, ticker string, startDate time.Time) (QuoteStats, error) {
 	var stats QuoteStats
 

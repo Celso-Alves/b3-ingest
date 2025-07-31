@@ -2,9 +2,6 @@ services:
   app:
     build: .
     working_dir: /app
-    # Optionally mount bundle as a volume if you want to access CSVs from host
-    # volumes:
-    #   - ./bundle:/app/bundle
     environment:
       - GIN_MODE=release
       - POSTGRES_USER=postgres
@@ -18,12 +15,11 @@ services:
     ports:
       - "8000:8000"
       - "8080:8080"
-    # No command or entrypoint, so container is idle unless a command is specified
   postgres:
     image: postgres:15
     environment:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: b3db
-    command: postgres -c max_wal_size=16384MB # Set max_wal_size here
+    command: postgres -c max_wal_size=16384MB 
     ports:
       - "5432:5432"

@@ -53,5 +53,5 @@ func TestUnzipGivenValidZipWhenCalledThenExtractsFiles(t *testing.T) {
 	err := unzip(zipPath, dest, logf)
 
 	// Assert
-	assert.Error(t, err) // empty zip, should error
+	assert.Error(t, err)
 }
