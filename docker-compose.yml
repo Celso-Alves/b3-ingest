@@ -15,12 +15,11 @@ services:
     ports:
       - "8000:8000"
       - "8080:8080"
-    # No command or entrypoint, so container is idle unless a command is specified
   postgres:
     image: postgres:15
     environment:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: b3db
-    command: postgres -c max_wal_size=16384MB # Set max_wal_size here
+    command: postgres -c max_wal_size=16384MB 
     ports:
       - "5432:5432"
