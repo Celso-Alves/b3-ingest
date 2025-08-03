@@ -49,6 +49,13 @@ func (s *Service) IngestFromCSV(dir string) error {
 	}
 
 	var wg sync.WaitGroup
+	/*
+		The semaphore (sem channel) prevents too many goroutines
+		from running at once, which could exhaust system resources or overload the database.
+		The ENV IngestionCores is used as the buffer size for the sem channel (semaphore),
+		which limits the number of concurrent goroutines that process files.
+		 Only IngestionCores files will be processed at the same time.
+	*/
 	sem := make(chan struct{}, settings.GetEnvs().IngestionCores)
 	var firstErr error
 	var mu sync.Mutex
@@ -133,6 +140,12 @@ func (s *Service) processFile(fileName, dir string, pool *pgxpool.Pool) error {
 
 func (s *Service) finalizeIngestion(pool *pgxpool.Pool, firstErr error) error {
 	s.Log.Info("Finalizing ingestion and running final SQLs...")
+	/*
+		included codigo_identificador_negocio to make sure the unique constraint is applied correctly.
+		This is important to ensure that the ingestion process does not fail due to duplicate entries.
+		create a idx_tradings_ticker_data to improve query performance.
+	*/
+
 	finalSQL :=
 		`INSERT INTO tradings (data_negocio, codigo_instrumento, preco_negocio, quantidade_negociada, hora_fechamento, codigo_identificador_negocio)
 		 SELECT data_negocio, codigo_instrumento, preco_negocio, quantidade_negociada, hora_fechamento, codigo_identificador_negocio
